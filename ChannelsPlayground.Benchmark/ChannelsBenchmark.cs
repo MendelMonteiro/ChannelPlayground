@@ -32,7 +32,7 @@ namespace ChannelsPlayground.Benchmark
         }
 
         private const int Single = 1;
-        private const int Multi = 3;
+        private const int Multi = 10;
         private const int Capacity = 1_000_000;
         private const int _ringBufferSize = 2 << 9;
 
