@@ -10,6 +10,7 @@ namespace ChannelsPlayground.Benchmark
         private readonly int _itemsToProduce;
         private readonly ValueDisruptor<ChannelsBenchmark.ValueEvent> _disruptor;
         private readonly TaskScheduler _scheduler;
+        private const int _batchSize = 20;
 
         public ValueDisruptorProducerFactory(int producerCount, int itemsToProduce, TaskScheduler scheduler, ValueDisruptor<ChannelsBenchmark.ValueEvent> disruptor)
         {
@@ -28,12 +29,18 @@ namespace ChannelsPlayground.Benchmark
                     () =>
                     {
                         var ringBuffer = _disruptor.RingBuffer;
-                        for (var index = 0; index < _itemsToProduce; index++)
+                        for (var index = 0; index < _itemsToProduce;)
                         {
-                            var seq = ringBuffer.Next();
-                            var @event = ringBuffer[seq];
-                            @event.Value = index;
-                            ringBuffer.Publish(seq);
+                            var hi = ringBuffer.Next(_batchSize);
+                            var lo = hi - (_batchSize - 1);
+                            for (var i = lo; i <= hi; i++)
+                            { 
+                                var @event = ringBuffer[i];
+                                @event.Value = index;
+                                index++;
+                            }
+
+                            ringBuffer.Publish(lo, hi);
                         }
                     },
                     cancellationToken,
@@ -43,8 +50,8 @@ namespace ChannelsPlayground.Benchmark
             }
 
             await Task.WhenAll(producers);
-            
-            WaitForAllEventsToBeProcessed(_disruptor.RingBuffer); 
+
+            WaitForAllEventsToBeProcessed(_disruptor.RingBuffer);
         }
     }
 }
