@@ -22,12 +22,10 @@ namespace ChannelsPlayground.Benchmark
 
             var i = 0;
 
-            while (i < itemsToProduce && await writer.WaitToWriteAsync(cancellationToken))
+            while (i < itemsToProduce)
             {
-                while (i < itemsToProduce && writer.TryWrite(i))
-                {
-                    i++;
-                }
+                await writer.WriteAsync(i, cancellationToken);
+                i++;
             }
         }
     }
