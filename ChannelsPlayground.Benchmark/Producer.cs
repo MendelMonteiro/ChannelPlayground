@@ -6,6 +6,7 @@ namespace ChannelsPlayground.Benchmark
 {
     public class Producer
     {
+        private const int _batchSize = 10;
         private readonly int _itemsToProduce;
         private readonly ChannelWriter<int> _writer;
 
@@ -21,11 +22,16 @@ namespace ChannelsPlayground.Benchmark
             var writer = _writer;
 
             var i = 0;
-
             while (i < itemsToProduce)
             {
-                await writer.WriteAsync(i, cancellationToken);
-                i++;
+                await writer.WaitToWriteAsync(cancellationToken);
+                for (var j = 0; j < _batchSize && i < itemsToProduce; j++)
+                {
+                    if (!writer.TryWrite(i))
+                        break;
+
+                    i++;
+                }
             }
         }
     }
