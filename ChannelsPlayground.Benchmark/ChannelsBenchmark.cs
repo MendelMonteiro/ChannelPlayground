@@ -32,7 +32,7 @@ namespace ChannelsPlayground.Benchmark
         }
 
         private const int Single = 1;
-        private const int Multi = 3;
+        private const int Multi = 10;
         private const int Capacity = 1_000_000;
         private const int _ringBufferSize = 2 << 9;
 
@@ -80,7 +80,7 @@ namespace ChannelsPlayground.Benchmark
 
         private Disruptor<Event> CreateDisruptor(ProducerType producerType, int ringBufferSize)
         {
-            var disruptor = new Disruptor<Event>(() => new Event(), ringBufferSize, TaskScheduler.Default, producerType, new BusySpinWaitStrategy());
+            var disruptor = new Disruptor<Event>(() => new Event(), ringBufferSize, TaskScheduler.Default, producerType, new BlockingWaitStrategy());
             disruptor.HandleEventsWith(_eventProcessor);
             disruptor.Start();
             return disruptor;
@@ -88,7 +88,7 @@ namespace ChannelsPlayground.Benchmark
 
         private ValueDisruptor<ValueEvent> CreateValueDisruptor(ProducerType producerType, int ringBufferSize)
         {
-            var valueDisruptor = new ValueDisruptor<ValueEvent>(() => new ValueEvent(), ringBufferSize, TaskScheduler.Default, producerType, new BusySpinWaitStrategy());
+            var valueDisruptor = new ValueDisruptor<ValueEvent>(() => new ValueEvent(), ringBufferSize, TaskScheduler.Default, producerType, new BlockingWaitStrategy());
             valueDisruptor.HandleEventsWith(_eventProcessor);
             valueDisruptor.Start();
             return valueDisruptor;
