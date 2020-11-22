@@ -2,14 +2,13 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3</TargetFramework>
-        <LangVersion>latest</LangVersion>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
-      <PackageReference Include="Disruptor" Version="3.5.0" />
-      <PackageReference Include="System.Threading.Channels" Version="4.5.0" />
+      <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+      <PackageReference Include="Disruptor" Version="3.6.2" />
+      <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
     </ItemGroup>
 
 </Project>

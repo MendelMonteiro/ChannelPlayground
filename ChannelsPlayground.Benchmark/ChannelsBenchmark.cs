@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
@@ -203,7 +202,7 @@ namespace ChannelsPlayground.Benchmark
         {
             public Config()
             {
-                Add(StatisticColumn.OperationsPerSecond);
+                AddColumn(StatisticColumn.OperationsPerSecond);
             }
         }
     }
