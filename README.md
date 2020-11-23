@@ -11,6 +11,19 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 
 InvocationCount=1  UnrollFactor=1  
 
+Batch size = 1
+```
+|             Method | PublisherCardinality | SubscriberCardinality |        Type | AllowSyncContinuations |     Mean |    Error |    StdDev |   Median |  Op/s | Ratio | RatioSD |     Gen 0 |     Gen 1 |     Gen 2 | Allocated |
+|------------------- |--------------------- |---------------------- |------------ |----------------------- |---------:|---------:|----------:|---------:|------:|------:|--------:|----------:|----------:|----------:|----------:|
+|        **ChannelPerf** |               **Single** |                **Single** | **BoundedWait** |                   **True** | **70.67 ms** | **1.388 ms** |  **2.281 ms** | **70.34 ms** | **14.15** |  **1.00** |    **0.00** | **1000.0000** | **1000.0000** | **1000.0000** | **8392040 B** |
+|      DisruptorPerf |               Single |                Single | BoundedWait |                   True | 49.77 ms | 3.496 ms | 10.309 ms | 50.00 ms | 20.09 |  0.65 |    0.14 |         - |         - |         - |     504 B |
+| ValueDisruptorPerf |               Single |                Single | BoundedWait |                   True | 12.05 ms | 1.125 ms |  3.299 ms | 10.95 ms | 82.99 |  0.17 |    0.06 |         - |         - |         - |     504 B |
+|                    |                      |                       |             |                        |          |          |           |          |       |       |         |           |           |           |           |
+|        **ChannelPerf** |                **Multi** |                **Single** | **BoundedWait** |                   **True** | **70.06 ms** | **1.297 ms** |  **1.149 ms** | **69.89 ms** | **14.27** |  **1.00** |    **0.00** | **1000.0000** | **1000.0000** | **1000.0000** | **8394664 B** |
+|      DisruptorPerf |                Multi |                Single | BoundedWait |                   True | 26.01 ms | 0.516 ms |  1.185 ms | 25.55 ms | 38.44 |  0.38 |    0.02 |         - |         - |         - |    1800 B |
+| ValueDisruptorPerf |                Multi |                Single | BoundedWait |                   True | 22.57 ms | 0.658 ms |  1.920 ms | 21.81 ms | 44.31 |  0.37 |    0.02 |         - |         - |         - |    1800 B |
+
+Batch size = 20
 ```
 |             Method | PublisherCardinality | SubscriberCardinality |        Type | AllowSyncContinuations |      Mean |     Error |    StdDev |    Median |   Op/s | Ratio |     Gen 0 |     Gen 1 |     Gen 2 | Allocated |
 |------------------- |--------------------- |---------------------- |------------ |----------------------- |----------:|----------:|----------:|----------:|-------:|------:|----------:|----------:|----------:|----------:|
