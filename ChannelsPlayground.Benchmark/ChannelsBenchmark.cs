@@ -10,13 +10,12 @@ using Disruptor.Dsl;
 namespace ChannelsPlayground.Benchmark
 {
     [Config(typeof(Config))]
+    [MemoryDiagnoser]
     public class ChannelsBenchmark
     {
         private readonly EventProcessor _eventProcessor = new EventProcessor();
-        private Disruptor<Event> _disruptorSingle;
-        private ValueDisruptor<ValueEvent> _valueDisruptorSingle;
-        private Disruptor<Event> _disruptorMulti;
-        private ValueDisruptor<ValueEvent> _valueDisruptorMulti;
+        private Disruptor<Event> _disruptor;
+        private ValueDisruptor<ValueEvent> _valueDisruptor;
 
         public enum Cardinality
         {
@@ -58,36 +57,40 @@ namespace ChannelsPlayground.Benchmark
         public void Setup()
         {
             SubscriberScheduler = new FixedThreadPoolScheduler(SubscriberCount);
-            PublisherScheduler = new FixedThreadPoolScheduler(ProducerCount); 
+            PublisherScheduler = new FixedThreadPoolScheduler(ProducerCount);
         }
 
         [GlobalSetup(Target = nameof(DisruptorPerf))]
         public void SetupDisruptor()
         {
             Setup();
-            _disruptorSingle = CreateDisruptor(ProducerType.Single, _ringBufferSize); 
-            _disruptorMulti = CreateDisruptor(ProducerType.Multi, _ringBufferSize);
+            if (SubscriberCardinality == Cardinality.Single)
+                _disruptor = CreateDisruptor(ProducerType.Single, _ringBufferSize, SubscriberScheduler);
+            else
+                _disruptor = CreateDisruptor(ProducerType.Multi, _ringBufferSize, SubscriberScheduler);
         }
 
         [GlobalSetup(Target = nameof(ValueDisruptorPerf))]
         public void SetupValueDisruptor()
         {
             Setup();
-            _valueDisruptorSingle = CreateValueDisruptor(ProducerType.Single, _ringBufferSize);
-            _valueDisruptorMulti = CreateValueDisruptor(ProducerType.Multi, _ringBufferSize);
+            if (SubscriberCardinality == Cardinality.Single)
+                _valueDisruptor = CreateValueDisruptor(ProducerType.Single, _ringBufferSize, SubscriberScheduler);
+            else
+                _valueDisruptor = CreateValueDisruptor(ProducerType.Multi, _ringBufferSize, SubscriberScheduler);
         }
 
-        private Disruptor<Event> CreateDisruptor(ProducerType producerType, int ringBufferSize)
+        private Disruptor<Event> CreateDisruptor(ProducerType producerType, int ringBufferSize, TaskScheduler scheduler)
         {
-            var disruptor = new Disruptor<Event>(() => new Event(), ringBufferSize, TaskScheduler.Default, producerType, new BlockingWaitStrategy());
+            var disruptor = new Disruptor<Event>(() => new Event(), ringBufferSize, scheduler, producerType, new BusySpinWaitStrategy());
             disruptor.HandleEventsWith(_eventProcessor);
             disruptor.Start();
             return disruptor;
         }
 
-        private ValueDisruptor<ValueEvent> CreateValueDisruptor(ProducerType producerType, int ringBufferSize)
+        private ValueDisruptor<ValueEvent> CreateValueDisruptor(ProducerType producerType, int ringBufferSize, TaskScheduler scheduler)
         {
-            var valueDisruptor = new ValueDisruptor<ValueEvent>(() => new ValueEvent(), ringBufferSize, TaskScheduler.Default, producerType, new BlockingWaitStrategy());
+            var valueDisruptor = new ValueDisruptor<ValueEvent>(() => new ValueEvent(), ringBufferSize, scheduler, producerType, new BusySpinWaitStrategy());
             valueDisruptor.HandleEventsWith(_eventProcessor);
             valueDisruptor.Start();
             return valueDisruptor;
@@ -109,16 +112,14 @@ namespace ChannelsPlayground.Benchmark
         [GlobalCleanup(Target = nameof(DisruptorPerf))]
         public void CleanupDisruptor()
         {
-            _disruptorSingle.Shutdown(TimeSpan.FromSeconds(1));
-            _disruptorMulti.Shutdown(TimeSpan.FromSeconds(1));
+            _disruptor.Shutdown(TimeSpan.FromSeconds(1));
             Cleanup();
         }
 
         [GlobalCleanup(Target = nameof(ValueDisruptorPerf))]
         public void CleanupValueDisruptor()
         {
-            _valueDisruptorSingle.Shutdown(TimeSpan.FromSeconds(1));
-            _valueDisruptorMulti.Shutdown(TimeSpan.FromSeconds(1));
+            _valueDisruptor.Shutdown(TimeSpan.FromSeconds(1));
             Cleanup();
         }
 
@@ -142,8 +143,7 @@ namespace ChannelsPlayground.Benchmark
         [Benchmark]
         public int DisruptorPerf()
         {
-            var disruptor = PublisherCardinality == Cardinality.Single ? _disruptorSingle : _disruptorMulti;
-            var producer = new DisruptorProducerFactory(ProducerCount, Capacity / ProducerCount, PublisherScheduler, disruptor);
+            var producer = new DisruptorProducerFactory(ProducerCount, Capacity / ProducerCount, PublisherScheduler, _disruptor);
             producer.StartProducersAsync().Wait();
             return _eventProcessor.Count;
         }
@@ -151,8 +151,7 @@ namespace ChannelsPlayground.Benchmark
         [Benchmark]
         public int ValueDisruptorPerf()
         {
-            var disruptor = PublisherCardinality == Cardinality.Single ? _valueDisruptorSingle : _valueDisruptorMulti;
-            var producer = new ValueDisruptorProducerFactory(ProducerCount, Capacity / ProducerCount, PublisherScheduler, disruptor);
+            var producer = new ValueDisruptorProducerFactory(ProducerCount, Capacity / ProducerCount, PublisherScheduler, _valueDisruptor);
             producer.StartProducersAsync().Wait();
             return _eventProcessor.Count;
         }

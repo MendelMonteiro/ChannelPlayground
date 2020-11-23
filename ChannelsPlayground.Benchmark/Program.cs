@@ -6,22 +6,24 @@ namespace ChannelsPlayground.Benchmark
     {
         public static void Main()
         {
-            BenchmarkRunner.Run<ChannelsBenchmark>(); 
-            // RunDisruptor();
+            BenchmarkRunner.Run<ChannelsBenchmark>();
+            //RunDisruptor();
         }
 
         private static void RunDisruptor()
         {
             var channelsBenchmark = new ChannelsBenchmark();
-            channelsBenchmark.Setup();
+
+            channelsBenchmark.SetupDisruptor();
 
             channelsBenchmark.IterationSetup();
             channelsBenchmark.DisruptorPerf();
 
-            channelsBenchmark.IterationSetup();
-            channelsBenchmark.DisruptorPerf();
+            //channelsBenchmark.IterationSetup();
+            //channelsBenchmark.DisruptorPerf();
 
             channelsBenchmark.Cleanup();
+            channelsBenchmark.CleanupDisruptor();
         }
     }
 }
