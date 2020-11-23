@@ -22,8 +22,12 @@ Batch size = 1
 |        **ChannelPerf** |                **Multi** |                **Single** | **BoundedWait** |                   **True** | **70.06 ms** | **1.297 ms** |  **1.149 ms** | **69.89 ms** | **14.27** |  **1.00** |    **0.00** | **1000.0000** | **1000.0000** | **1000.0000** | **8394664 B** |
 |      DisruptorPerf |                Multi |                Single | BoundedWait |                   True | 26.01 ms | 0.516 ms |  1.185 ms | 25.55 ms | 38.44 |  0.38 |    0.02 |         - |         - |         - |    1800 B |
 | ValueDisruptorPerf |                Multi |                Single | BoundedWait |                   True | 22.57 ms | 0.658 ms |  1.920 ms | 21.81 ms | 44.31 |  0.37 |    0.02 |         - |         - |         - |    1800 B |
+```
+
 
 Batch size = 20
+
+
 ```
 |             Method | PublisherCardinality | SubscriberCardinality |        Type | AllowSyncContinuations |      Mean |     Error |    StdDev |    Median |   Op/s | Ratio |     Gen 0 |     Gen 1 |     Gen 2 | Allocated |
 |------------------- |--------------------- |---------------------- |------------ |----------------------- |----------:|----------:|----------:|----------:|-------:|------:|----------:|----------:|----------:|----------:|
